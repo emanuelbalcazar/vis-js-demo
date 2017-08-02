@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graph 3D animation moving dots</title>
+
+    <style>
+        body {font: 10pt arial;}
+    </style>
+
+    <link rel= "stylesheet" type ="text/css" href="./libs/css/bootstrap.min.css">
+
+    <script type="text/javascript" src="./libs/js/jquery.min.js"></script>
+    <script type="text/javascript" src="./libs/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./dist/vis.js"></script>
+
+
+    <script type="text/javascript">
+
+        var DEFAULT_DOTS = 10;
+        var DEFAULT_VELOCITY = 2;
+
+        var data = null;
+        var graph = null;
+        var dots = 10;
+        var velocity = 2;
+
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // create the data table.
+            data = new vis.DataSet();
+
+            // create some shortcuts to math functions
+            var sin = Math.sin;
+            var cos = Math.cos;
+            var pi = Math.PI;
+
+            // create the animation data
+            var tmax = velocity * pi;
+            var tstep = tmax / 75;
+            var dotCount = dots;  // set this to 1, 2, 3, 4, ...
+
+            for (var t = 0; t < tmax; t += tstep) {
+                var tgroup = parseFloat(t.toFixed(2));
+                var value = t;
+
+                // a dot in the center
+                data.add( {x:0,y:0,z:0,filter:tgroup,style:value});
+
+                // one or multiple dots moving around the center
+                for (var dot = 0; dot < dotCount; dot++) {
+                    var tdot = t + 2*pi * dot / dotCount;
+                    data.add({x:sin(tdot), y:cos(tdot), z:sin(tdot), filter:tgroup, style:value});
+                    data.add({x:sin(tdot), y:-cos(tdot), z:sin(tdot + tmax*1/2), filter:tgroup, style:value});
+                }
+            }
+
+            // specify options
+            var options = {
+                width:  '600px',
+                height: '600px',
+                style: 'dot-color',
+                showPerspective: true,
+                showGrid: true,
+                keepAspectRatio: true,
+                verticalRatio: 1.0,
+                animationInterval: 35, // milliseconds
+                animationPreload: false,
+                animationAutoStart: true,
+                legendLabel: 'valor',
+                cameraPosition: {
+                    horizontal: 2.7,
+                    vertical: 0.0,
+                    distance: 1.65
+                }
+            };
+
+          // create our graph
+          var container = document.getElementById('mygraph');
+          graph = new vis.Graph3d(container, data, options);
+        
+        } // end drawVisualization.
+
+        // cambia la cantidad de nodos en pantalla.
+        function changeDots(def) {
+            if (def) {
+                dots = DEFAULT_DOTS;
+                drawVisualization();
+                return;
+            }
+
+            value = $('#dots').val();
+            dots = (value < 1) ? DEFAULT_DOTS : value;
+            drawVisualization();
+        }
+
+        // cambia la velocidad de desplazamiento de los nodos.
+        function changeVelocity(def) {
+            if (def) {
+                velocity = DEFAULT_VELOCITY;
+                drawVisualization();
+                return;
+            }
+
+            value = $('#velocity').val();
+            velocity = (value < 1) ? DEFAULT_VELOCITY : value;
+            drawVisualization();
+        }
+
+    </script> 
+
+</head>
+
+
+<body onload="drawVisualization();">
+
+<div id="mygraph" class="col-lg-3 col-lg-offset-0"></div>
+<br>
+<div id="info">
+    <div class="row">
+
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="input-group">
+
+                <input type="number" id="dots" class="form-control" placeholder="Cantidad de nodos (pares)">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" onclick="changeDots(false)" type="button">Cambiar</button>
+                    <button class="btn btn-default" onclick="changeDots(true)" type="button">Default</button>
+
+                </span>
+            </div><!-- /input-group -->
+        </div>
+        <br></br>
+        <br></br>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="input-group">
+
+                <input type="number" id="velocity" class="form-control" placeholder="Velocidad de movimiento">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" onclick="changeVelocity(false)" type="button">Cambiar</button>
+                    <button class="btn btn-default" onclick="changeVelocity(true)" type="button">Default</button>
+                </span>
+            </div><!-- /input-group -->
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
